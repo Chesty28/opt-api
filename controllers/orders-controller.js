@@ -1,7 +1,9 @@
 const { validationResult } = require('express-validator');
 const countryApi = require('iso-3166-1-alpha-2');
 
-const getOrder = (req, res) => {
+const mongooseModel = require('../mongoose');
+
+const getOrder = async (req, res) => {
     const errors = validationResult(req);
     const invalidData = [];
     if (!errors.isEmpty()) {
@@ -45,15 +47,23 @@ const getOrder = (req, res) => {
 
     const products = [];
     for (const product of partnerData.details) {
-      products.push(product);
+      let newProduct = { 
+        Barcode: product.eanCode,
+        OPTProductID: product.eanCode,
+        Qty: product.quantity
+      };
+      products.push(newProduct);
     }
+
     const newData = {
       ...refactoredData,
       Products: products
     };
     refactoredData = newData;
 
-    res.json(refactoredData);
+    const savedOrder = await mongooseModel.saveOrder(refactoredData, errors ? invalidData : null);
+
+    res.sendStatus(200);
 };
 
 exports.getOrder = getOrder;
