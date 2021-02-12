@@ -5,6 +5,7 @@ const ordersController = require('../controllers/orders-controller');
 
 const router = Router();
 
+// Add validation for data type
 router.post('/', [
     check('id').not().isEmpty(),
     check('fullName').not().isEmpty(),

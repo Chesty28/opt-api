@@ -1,5 +1,6 @@
 const { validationResult } = require('express-validator');
 const countryApi = require('iso-3166-1-alpha-2');
+const axios = require('axios');
 
 const mongooseModel = require('../mongoose');
 
@@ -24,7 +25,7 @@ const getOrder = async (req, res) => {
     }
 
     let refactoredData = {
-      OrderID: partnerData.id,
+      OrderID: partnerData.id.toString(),
       InvoiceSendLater: false,
       Issued: new Date().toISOString(),
       OrderType: 'standard',
@@ -61,9 +62,12 @@ const getOrder = async (req, res) => {
     };
     refactoredData = newData;
 
-    const savedOrder = await mongooseModel.saveOrder(refactoredData, errors ? invalidData : null);
+    await mongooseModel.saveOrder(refactoredData, invalidData);
 
-    res.sendStatus(200);
+    const config = { headers: { Authorization: 'Basic VGVzdFVzZXI6MkFzZjI3ZERWY3ZkOHNkMWRmU2Zk'} } //replace for base64 encryption
+    axios.post('https://us-central1-node-task-assignment.cloudfunctions.net/oapi/api/orders', refactoredData, config)
+    .then(optRes => res.sendStatus(optRes.status))
+    .catch(err => res.status(err.response.status).send(err.response.data));
 };
 
 exports.getOrder = getOrder;
