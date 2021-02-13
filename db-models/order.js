@@ -20,8 +20,9 @@ const orderSchema = mongoose.Schema({
             Zip: String,
         },
     },
-    Products: { type: Array },
-    Errors: { type: Array }
+    Products: Array,
+    Errors: Array,
+    State: String
 });
 
 module.exports = mongoose.model('Order', orderSchema);

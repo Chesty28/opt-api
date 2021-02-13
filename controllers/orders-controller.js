@@ -3,8 +3,10 @@ const countryApi = require('iso-3166-1-alpha-2');
 const axios = require('axios');
 
 const mongooseModel = require('../mongoose');
+const auth = require('../utils/auth');
 
 const getOrder = async (req, res) => {
+    // Detecting invalid inputs from Partner
     const errors = validationResult(req);
     const invalidData = [];
     if (!errors.isEmpty()) {
@@ -15,6 +17,7 @@ const getOrder = async (req, res) => {
 
     const partnerData = req.body
 
+    // Setting carrier ID
     let carrierId = null;
     switch (partnerData.carrierKey) {
       case 'DPD': carrierId = 1001; break;
@@ -24,6 +27,7 @@ const getOrder = async (req, res) => {
       case 'GLS': carrierId = 1005; break;
     }
 
+    // Refactoring Partner data to OPT standard
     let refactoredData = {
       OrderID: partnerData.id.toString(),
       InvoiceSendLater: false,
@@ -46,6 +50,7 @@ const getOrder = async (req, res) => {
       }
     }
 
+    // Adding Partner products to refactored data
     const products = [];
     for (const product of partnerData.details) {
       let newProduct = { 
@@ -62,12 +67,18 @@ const getOrder = async (req, res) => {
     };
     refactoredData = newData;
 
-    await mongooseModel.saveOrder(refactoredData, invalidData);
+    // Sending order to OPT
+    axios.post('https://us-central1-node-task-assignment.cloudfunctions.net/oapi/api/orders', refactoredData, auth.optAuth())
+    .then(async (optRes) => {
+      res.sendStatus(optRes.status)
+      console.log(`Order ${refactoredData.OrderID} was accepted by OPT`);
 
-    const config = { headers: { Authorization: 'Basic VGVzdFVzZXI6MkFzZjI3ZERWY3ZkOHNkMWRmU2Zk'} } //replace for base64 encryption
-    axios.post('https://us-central1-node-task-assignment.cloudfunctions.net/oapi/api/orders', refactoredData, config)
-    .then(optRes => res.sendStatus(optRes.status))
-    .catch(err => res.status(err.response.status).send(err.response.data));
+      // Saving order to database
+      await mongooseModel.saveOrder(refactoredData, invalidData);
+    })
+    .catch(err => {
+      res.status(err.response.status).send(err.response.data)
+    });
 };
 
 exports.getOrder = getOrder;

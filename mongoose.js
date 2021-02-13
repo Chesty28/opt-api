@@ -2,8 +2,7 @@ const Order = require('./db-models/order');
 
 const saveOrder = async (orderData, invalidData) => {
     let data = orderData;
-    // Add state of order
-    data = { ...orderData, Errors: invalidData }
+    data = { ...orderData, Errors: invalidData, State: 'Unfinished' }
     const order = new Order(data);
 
     let result;

@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
 const ordersRoutes = require('./routes/orders');
+const stateFetching = require('./utils/state-fetching');
 
 const app = express();
 
@@ -25,6 +26,6 @@ app.use((error, req, res, next) => {
 });
 
 // Server
-mongoose.connect('mongodb+srv://admin:KWOBsuq9gTQbR0dj@cluster0.vpfqb.mongodb.net/opt-api?retryWrites=true&w=majority')
-.then(() => app.listen(5000))
+mongoose.connect('mongodb+srv://admin:KWOBsuq9gTQbR0dj@cluster0.vpfqb.mongodb.net/opt-api?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
+.then(() => app.listen(5000, () => console.log('Server is listening on port 5000')))
 .catch(err => console.log(err));
