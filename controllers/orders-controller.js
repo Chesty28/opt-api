@@ -8,10 +8,12 @@ const auth = require('../utils/auth');
 const getOrder = async (req, res) => {
     // Detecting invalid inputs from Partner
     const errors = validationResult(req);
+  
     const invalidData = [];
     if (!errors.isEmpty()) {
         for (const error of errors.errors) {
             invalidData.push(error.param);
+            console.log(error);
         }
     }
 
@@ -48,7 +50,7 @@ const getOrder = async (req, res) => {
           Zip: partnerData.zipCode,
         }
       }
-    }
+    };
 
     // Adding Partner products to refactored data
     const products = [];
@@ -67,17 +69,23 @@ const getOrder = async (req, res) => {
     };
     refactoredData = newData;
 
+    if (invalidData.length !== 0) {
+      await mongooseModel.saveOrder(refactoredData, invalidData);
+      return res.sendStatus(200);
+    }
+
     // Sending order to OPT
     axios.post('https://us-central1-node-task-assignment.cloudfunctions.net/oapi/api/orders', refactoredData, auth.optAuth())
-    .then(async (optRes) => {
-      res.sendStatus(optRes.status)
+    .then(async optRes => {
+      res.sendStatus(optRes.status);
       console.log(`Order ${refactoredData.OrderID} was accepted by OPT`);
 
       // Saving order to database
-      await mongooseModel.saveOrder(refactoredData, invalidData);
+      await mongooseModel.saveOrder(refactoredData);
     })
-    .catch(err => {
-      res.status(err.response.status).send(err.response.data)
+    .catch(async err => {
+      console.log(err);
+      res.sendStatus(200);
     });
 };
 

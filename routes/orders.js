@@ -5,18 +5,17 @@ const ordersController = require('../controllers/orders-controller');
 
 const router = Router();
 
-// Add validation for data type
 router.post('/', [
-    check('id').not().isEmpty(),
-    check('fullName').not().isEmpty(),
-    check('email').not().isEmpty(),
-    check('phone').not().isEmpty(),
-    check('addressLine1').not().isEmpty(),
-    check('zipCode').not().isEmpty(),
-    check('city').not().isEmpty(),
-    check('country').not().isEmpty(),
-    check('carrierKey').not().isEmpty(),
-    check('status').not().isEmpty()
+    check('id').trim().isInt().not().isEmpty(),
+    check('fullName').trim().isAlpha().not().isEmpty(),
+    check('email').trim().normalizeEmail().isEmail().not().isEmpty(),
+    check('phone').trim().isAlpha().not().isEmpty(),
+    check('addressLine1').trim().isAlpha().not().isEmpty(),
+    check('zipCode').trim().isAlpha().not().isEmpty(),
+    check('city').trim().isAlpha().not().isEmpty(),
+    check('country').trim().isAlpha().not().isEmpty(),
+    check('carrierKey').trim().isAlphanumeric(),
+    check('status').trim().isAlpha().not().isEmpty()
 ], ordersController.getOrder);
 
 module.exports = router;

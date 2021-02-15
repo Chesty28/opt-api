@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
+const uniqueValidator = require('mongoose-unique-validator');
 
 const orderSchema = mongoose.Schema({
-    OrderID: String,
+    OrderID: { type: String, unique: true },
     InvoiceSendLater: Boolean,
     Issued: String,
     OrderType: String,
@@ -24,5 +25,7 @@ const orderSchema = mongoose.Schema({
     Errors: Array,
     State: String
 });
+
+orderSchema.plugin(uniqueValidator);
 
 module.exports = mongoose.model('Order', orderSchema);
