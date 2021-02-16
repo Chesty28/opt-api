@@ -11,8 +11,7 @@ setInterval(async () => {
 
             // Asking OPT for order state
             console.log(`Asking for order ${order.OrderID} state...`);
-            axios.get(`https://us-central1-node-task-assignment.cloudfunctions.net/oapi/api/orders/${order.OrderID}/state`, 
-            auth.optAuth())
+            axios.get(`https://us-central1-node-task-assignment.cloudfunctions.net/oapi/api/orders/${order.OrderID}/state`, auth.optAuth())
             .then(async (res) => {
                 if (res.data.State === 'Finished') {
                     // Patching to Partner if order is finished
