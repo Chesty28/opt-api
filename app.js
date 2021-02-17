@@ -19,5 +19,5 @@ app.use((req, res) => {
 
 // Server
 mongoose.connect('mongodb+srv://admin:KWOBsuq9gTQbR0dj@cluster0.vpfqb.mongodb.net/opt-api?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true })
-.then(() => app.listen(5000, () => console.log('Server is listening on port 5000')))
+.then(() => app.listen(process.env.PORT || 5000, () => console.log('Server is listening on port 5000')))
 .catch(err => console.log(err));
