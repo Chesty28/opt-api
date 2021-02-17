@@ -1,43 +1,26 @@
-const axios = require('axios');
 const Order = require('../db-models/order');
-const auth = require('../utils/auth');
+const axiosRequests = require('./axios-requests');
 
 setInterval(async () => {
+
+    // Fetching orders that are unfinished from database
     try {
-        // Fetching orders that are unfinished from database
-        orders = await Order.find({ State: 'Unfinished', Errors: [] })
+        unfinishedOrders = await Order.find({ State: 'Unfinished', Errors: [] })
+    } catch (err) { console.log(err) }
 
-        for (const order of orders) {
-
-            // Asking OPT for order state
-            console.log(`Asking for order ${order.OrderID} state...`);
-            axios.get(`https://us-central1-node-task-assignment.cloudfunctions.net/oapi/api/orders/${order.OrderID}/state`, auth.optAuth())
-            .then(async (res) => {
-                if (res.data.State === 'Finished') {
-                    // Patching to Partner if order is finished
-                    axios.patch(`https://us-central1-node-task-assignment.cloudfunctions.net/papi/api/orders/${order.OrderID}`, { state: "Finished" }, auth.partnerAuth())
-                    .then(res => {
-                        console.log(`Order ${order.OrderID} was finished and partner was informed`);
-                    }).catch (err => {
-                        let errorMessage = err;
-                        if (err.response.status === 400) {
-                            errorMessage = `Order ${order.OrderID} was not patched - invalid state value`;
-                        } else if (err.response.status === 404) {
-                            errorMessage = `Order ${order.OrderID} was not patched - invalid order ID`;
-                        }
-                        console.log(errorMessage);
-                    });
-
-                    // Telling database that order is finished
-                    order.State = 'Finished';
-                    try {
-                        await order.save();
-                    } catch (err) { console.log (err) }
-                }
-            })
-            .catch(err => console.log(err));
-        }
-    } catch (err) {
-        console.log(err);
+    for (const order of unfinishedOrders) {
+        // Asking OPT for order state
+        axiosRequests.getState(order);
     }
+
+    // Fetching orders that are unpatched from database
+    try {
+        unpatchedOrders = await Order.find({ State: 'Finished', Errors: [], Patched: false });
+    } catch (err) { console.log(err) }
+
+    for (const order of unpatchedOrders) {
+        // Patching order to partner
+        axiosRequests.patchState(order);       
+    }
+
 }, 60000);

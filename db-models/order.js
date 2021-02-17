@@ -23,7 +23,8 @@ const orderSchema = mongoose.Schema({
     },
     Products: Array,
     Errors: Array,
-    State: String
+    State: String,
+    Patched: Boolean
 });
 
 orderSchema.plugin(uniqueValidator);
