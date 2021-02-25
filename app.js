@@ -2,9 +2,9 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+require('dotenv').config()
 
-const ordersRoutes = require('./routes/orders');
-const stateFetching = require('./utils/state-fetching');
+const ordersRoutes = require('./src/routes/orders');
 
 const app = express();
 
@@ -19,6 +19,6 @@ app.use((req, res) => {
 
 // Server
 const port = process.env.PORT || 5000;
-mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://admin:KWOBsuq9gTQbR0dj@cluster0.vpfqb.mongodb.net/opt-api?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true })
+mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true })
 .then(() => app.listen(port, () => console.log('Server is listening on port ' + port)))
 .catch(err => console.log(err));
