@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 require('dotenv').config()
 
 const ordersRoutes = require('./src/routes/orders');
+const stateFetching = require('./src/utils/state-fetching');
 
 const app = express();
 

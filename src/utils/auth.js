@@ -1,6 +1,6 @@
-const key1 = 'KdofdDxc2Asf27dDVcvd8sd1dfSfdv1';
-const key2 = 'UJbs62MP41dFgGaSCcvs5MP48dFGgGz';
-const creds = 'TestUser:2Asf27dDVcvd8sd1dfSfd';
+const key1 = process.env.KEY1;
+const key2 = process.env.KEY2;
+const creds = process.env.CREDS;
 
 const optAuth = () => {
     const hash = Buffer.from(creds).toString('base64').toString();
