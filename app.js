@@ -20,5 +20,5 @@ app.use((req, res) => {
 // Server
 const port = process.env.PORT || 5000;
 mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true })
-.then(() => app.listen(port, () => console.log('Server is listening on port ' + port + ' ' + process.env.MONGODB_URI)))
+.then(() => app.listen(port, () => console.log('Server is listening on port ' + port)))
 .catch(err => console.log(err));
