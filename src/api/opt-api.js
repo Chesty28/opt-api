@@ -9,7 +9,8 @@ const getState = async (order) => {
 			auth.optAuth()
 		);
 		if (res.config.headers.Authorization !== auth.hash) {
-			return res.sendStatus(401);
+			console.log('Unauthorized request came from OPT');
+			return false;
 		}
 		if (res.data.State === 'Finished') {
 			console.log(`Order ${order.OrderID} was finished`);
